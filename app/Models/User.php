@@ -41,4 +41,29 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withPivot('assigned_at'); 
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role->name === $role;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->role->permissions->contains('name', $permission);
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        return in_array($this->role->name, $roles);
+    }
+
+    public function assignRole(Role $role)
+    {
+        $this->roles()->attach($role, ['assigned_at' => now()]);
+    }
 }
